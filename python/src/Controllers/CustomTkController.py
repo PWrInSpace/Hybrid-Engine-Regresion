@@ -9,12 +9,15 @@ customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark",
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
 
-class App(customtkinter.CTk):
+class Controller(customtkinter.CTk):
     def __init__(self):
         super().__init__()
+        self.state('normal')
+
+    def run(self):
 
         # configure window
-        self.title("CustomTkinter complex_example.py")
+        self.title("DUPA")
         self.geometry(f"{1100}x{580}")
 
         # Create a menu bar
@@ -25,7 +28,7 @@ class App(customtkinter.CTk):
         filemenu.add_command(label="New")
         filemenu.add_command(label="Open")
         filemenu.add_command(label="Save")
-
+ 
         menubar.add_cascade(label="File", menu=filemenu)
 
         # Create an Edit menu and add it to the menu bar
@@ -216,8 +219,3 @@ class App(customtkinter.CTk):
             print("SUCC")
             self.textbox.insert("insert", "\n\nAvailable commands:\n\n")
             self.textbox.insert("insert", "help - display this message\n")
-
-
-if __name__ == "__main__":
-    app = App()
-    app.mainloop()
