@@ -5,18 +5,21 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from src.Solvers.AbstractSolver import AbstractSolver
 from src.Solvers.Solver1 import Solver1
+from src.Solvers.InitializeSolvers import InitializeSolvers
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
 
 class Controller(customtkinter.CTk):
+    SolverHashMap = dict()
     OperationHashmap = dict()
     OperationCurrent = None
     
     def __init__(self):
         super().__init__()
         self.state('normal')
+        InitializeSolvers(self.SolverHashMap)
 
     def run(self):
 
@@ -166,10 +169,43 @@ class Controller(customtkinter.CTk):
         customtkinter.set_widget_scaling(new_scaling_float)
 
     def ButtonAddOperationAction(self):
-        self.OperationCurrent = Solver1(self)
-        self.OperationItemList.insert(tk.END, "Solver1")
+        solverType = None
+        operationName = None
+
+        self.OperationCreationPopUp(solverType, operationName)
         
-        self.OperationHashmap['Skib'] = self.OperationCurrent
+        SolverClassTemp = self.SolverHashMap[solverType]
+
+        self.OperationItemList.insert(tk.END, operationName)
+
+        self.OperationCurrent = SolverClassTemp(self)
+        
+        self.OperationHashmap[operationName] = self.OperationCurrent
+
+    def OperationCreationPopUp(self, solverType, operationName):
+        self.popup = tk.Toplevel(self.master)
+        self.popup.title("Create Operation")
+
+        # Combobox
+        self.solverTypeLabel = customtkinter.CTkLabel(self.popup, text="Choose Operation:")
+        self.solverTypeLabel.pack()
+        self.solverTypeCombo = customtkinter.CTkComboBox(self.popup)
+        self.solverTypeCombo['values'] = ("Solver1")
+        self.solverTypeCombo.pack()
+
+        self.operationNameLabel = customtkinter.CTkLabel(self.popup, text="Operation name:")
+        self.operationNameLabel.pack()
+        self.operationNameEntry = customtkinter.CTkEntry(self.popup)
+        self.operationNameEntry.pack()
+
+        self.okButton = customtkinter.CTkButton(self.popup, text="OK", command=self.ClosePopup(solverType, operationName))
+        self.okButton.pack()
+
+    def ClosePopup(self, solverType, operationName):
+        solverType = self.solverTypeCombo.get()
+        operationName = self.operationNameEntry.get()
+
+        self.popup.destroy()
 
     def ButtonDeleteOperationAction(self):
         pass

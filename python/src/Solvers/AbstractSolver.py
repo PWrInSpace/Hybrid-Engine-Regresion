@@ -31,10 +31,16 @@ class AbstractSolver(ABC):
         pass
 
     def AddInputItem(self, Item, rowNumber):
+        Temp = None
+        try:
+            Temp = self.InputValueList[Item]
+        except KeyError:
+            self.InputValueList[Item] = None
+            
         ScrollTempLabel = customtkinter.CTkLabel(self.Controller.InputFrame, text=Item) 
         ScrollTempLabel.grid(row=rowNumber, column=0, padx=10, pady=10, sticky="w")
 
-        ScrollTempEntry = customtkinter.CTkEntry(self.Controller.InputFrame)
+        ScrollTempEntry = customtkinter.CTkEntry(self.Controller.InputFrame, placeholder_text=Temp)
         ScrollTempEntry.grid(row=rowNumber, column=1, padx=10, pady=10, sticky="w")
 
         self.InputItemList[Item] = ScrollTempEntry
@@ -43,10 +49,14 @@ class AbstractSolver(ABC):
     def DeleteInput(self):
         for widget in self.InputItemList:
             widget.destroy()
-        self.InputItemList.clear()
 
     def AddOutput(self, Item, rowNumber):
-        self.OutputValueList[Item] = None
+        Temp = None
+        try:
+            Temp = self.OutputValueList[Item]
+        except KeyError:
+            self.OutputValueList[Item] = None
+
 
         ScrollTempLabel = customtkinter.CTkLabel(self.Controller.ScrollableFrameOutput, text=f"{Item}: {self.OutputValueList[Item]}") 
         ScrollTempLabel.grid(row=rowNumber, column=0, padx=10, pady=10, sticky="w")
