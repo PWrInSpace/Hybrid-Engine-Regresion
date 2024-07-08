@@ -1,12 +1,13 @@
 from abc import ABC, abstractmethod
 import customtkinter
 
-from python.src.Controllers.Controller import Controller
 
 class AbstractSolver(ABC):
     Controller = None
     InputItemList = dict()
-    OutputItemList = []
+    InputValueList = dict()
+    OutputItemList = dict()
+    OutputValueList = dict()
     GraphItemList = []
 
     @abstractmethod
@@ -30,12 +31,24 @@ class AbstractSolver(ABC):
         pass
 
     def AddInputItem(self, Item, rowNumber):
-        ScrollTempLabel = customtkinter.CTkLabel(self.scrollable_frame, text=Item) 
+        ScrollTempLabel = customtkinter.CTkLabel(self.Controller.InputFrame, text=Item) 
         ScrollTempLabel.grid(row=rowNumber, column=0, padx=10, pady=10, sticky="w")
-        self.Controller.SidebarInputItemList.append(ScrollTempLabel)
 
-        ScrollTempEntry = customtkinter.CTkEntry(self.scrollable_frame)
+        ScrollTempEntry = customtkinter.CTkEntry(self.Controller.InputFrame)
         ScrollTempEntry.grid(row=rowNumber, column=1, padx=10, pady=10, sticky="w")
-        self.Controller.SidebarInputItemList.append(ScrollTempEntry)
 
         self.InputItemList[Item] = ScrollTempEntry
+
+    
+    def DeleteInput(self):
+        for widget in self.InputItemList:
+            widget.destroy()
+        self.InputItemList.clear()
+
+    def AddOutput(self, Item, rowNumber):
+        self.OutputValueList[Item] = None
+
+        ScrollTempLabel = customtkinter.CTkLabel(self.Controller.ScrollableFrameOutput, text=f"{Item}: {self.OutputValueList[Item]}") 
+        ScrollTempLabel.grid(row=rowNumber, column=0, padx=10, pady=10, sticky="w")
+
+        self.OutputItemList[Item] = ScrollTempLabel

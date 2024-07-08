@@ -3,13 +3,17 @@ import tkinter.messagebox
 import customtkinter # type: ignore
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
+from src.Solvers.AbstractSolver import AbstractSolver
+from src.Solvers.Solver1 import Solver1
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
 
 class Controller(customtkinter.CTk):
+    OperationHashmap = dict()
+    OperationCurrent = None
+    
     def __init__(self):
         super().__init__()
         self.state('normal')
@@ -17,7 +21,7 @@ class Controller(customtkinter.CTk):
     def run(self):
 
         # configure window
-        self.title("HER")
+        self.title("Rocket Engine Simulation Platform")
         self.geometry(f"{1100}x{580}")
 
         # Create a menu bar
@@ -54,22 +58,19 @@ class Controller(customtkinter.CTk):
         self.sidebar_frame.grid_columnconfigure(0, weight=1)
         self.sidebar_frame.grid_columnconfigure(1, weight=1)  # make the 1st column take up any extra space
 
-        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="CustomTkinter", font=customtkinter.CTkFont(size=20, weight="bold"), anchor="center")
+        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="RESP", font=customtkinter.CTkFont(size=20, weight="bold"), anchor="center")
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 20), sticky="nsew")
 
-        self.SidebarButtonGenerate = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event, text="Generate")
+        self.SidebarButtonGenerate = customtkinter.CTkButton(self.sidebar_frame, command=self.ButtonGenerateAction, text="Generate")
         self.SidebarButtonGenerate.grid(row=1, column=0, padx=20, pady=10)
 
         self.OperationItemList = tk.Listbox(self.sidebar_frame)
-        self.OperationItemList.insert(1, "MyProject")
-        self.OperationItemList.insert(2, "MyAnalysis")
-        self.OperationItemList.insert(3, "MyComparison")
         self.OperationItemList.grid(row=2, column=0, columnspan=2, padx=20, pady=10, sticky="nsew")
 
 
-        self.SidebarButtonAdd = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event, text="Add")
+        self.SidebarButtonAdd = customtkinter.CTkButton(self.sidebar_frame, command=self.ButtonAddOperationAction, text="Add")
         self.SidebarButtonAdd.grid(row=3, column=0, padx=20, pady=10)
-        self.SidebarButtonDelete = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event, text="Delete")
+        self.SidebarButtonDelete = customtkinter.CTkButton(self.sidebar_frame, command=self.ButtonDeleteOperationAction, text="Delete")
         self.SidebarButtonDelete.grid(row=3, column=1, padx=20, pady=10)
 
 
@@ -89,24 +90,24 @@ class Controller(customtkinter.CTk):
         y = [10, 20, 55, 30, 20]
 
         ax.plot(x, y, linestyle='-', color='grey', marker='o')
-        ax.set_title("CTkGraph")
+        ax.set_title("Force Graph")
 
         canvas = FigureCanvasTkAgg(fig, master=self.graph_frame)
         canvas.get_tk_widget().pack(side='top', fill='both', expand=True)
         canvas.draw()
 
 
-        self.label_tab_2 = customtkinter.CTkLabel(self.tabview.tab("Tab 2"), text="CTkLabel on Tab 2")
-        self.label_tab_2.grid(row=0, column=0, padx=20, pady=20)
+        # self.label_tab_2 = customtkinter.CTkLabel(self.tabview.tab("Tab 2"), text="CTkLabel on Tab 2")
+        # self.label_tab_2.grid(row=0, column=0, padx=20, pady=20)
         
 
         # create textbox
         self.textbox = customtkinter.CTkTextbox(self, width=250)
         self.textbox.grid(row=2, rowspan=2, column=1, padx=(20, 0), pady=20, sticky="nsew")
-        self.textbox.configure(state="disabled")
+        self.textbox.configure()
 
         # insert the initial text symbol
-        self.textbox.insert("end", "Welcome to HER terminal, for help insert help")
+        self.textbox.insert("end", "Welcome to RESP terminal. For help insert: help")
 
         # create input for textbox
         self.inputTerminal = customtkinter.CTkEntry(self)
@@ -114,18 +115,20 @@ class Controller(customtkinter.CTk):
         self.inputTerminal.bind("<Return>", self.on_return)
 
         # create scrollable frame
-        self.scrollable_frame = customtkinter.CTkScrollableFrame(self, label_text="Input Frame", corner_radius=0)
-        self.scrollable_frame.grid(row=1, column=0, rowspan=3, sticky="nsew")
-        self.scrollable_frame.grid_columnconfigure(0, weight=0)
-        self.SidebarInputItemList = []
+        self.InputFrame = customtkinter.CTkScrollableFrame(self, label_text="Input Frame", corner_radius=0)
+        self.InputFrame.grid(row=1, column=0, rowspan=3, sticky="nsew")
+        self.InputFrame.grid_columnconfigure(0, weight=0)
+
+        '''
         for i in range(100):
-            ScrollTempLabel = customtkinter.CTkLabel(self.scrollable_frame, text=f"InputData {i}") 
+            ScrollTempLabel = customtkinter.CTkLabel(self.InputFrame, text=f"InputData {i}") 
             ScrollTempLabel.grid(row=i, column=0, padx=10, pady=10, sticky="w")
             self.SidebarInputItemList.append(ScrollTempLabel)
 
-            ScrollTempEntry = customtkinter.CTkEntry(self.scrollable_frame)
+            ScrollTempEntry = customtkinter.CTkEntry(self.InputFrame)
             ScrollTempEntry.grid(row=i, column=1, padx=10, pady=10, sticky="w")
             self.SidebarInputItemList.append(ScrollTempEntry)
+        '''
 
         # create scrollable frame for checkbox graphs
         self.ScrollableFrameGraphChekcbox = customtkinter.CTkScrollableFrame(self, label_text="Graph Checkbox", corner_radius=0, width=250, height=250)
@@ -139,12 +142,14 @@ class Controller(customtkinter.CTk):
         # create scrollable frame for output data
         self.ScrollableFrameOutput = customtkinter.CTkScrollableFrame(self, label_text="Output Data", corner_radius=0, width=250)
         self.ScrollableFrameOutput.grid(row=1, column=2, rowspan=3, padx=(20, 0), pady=(0, 20), sticky="nsew")
+        
+        '''
         self.ScrollableOutputList = []
         for i in range(10):
             ScrollTempLabel = customtkinter.CTkLabel(self.ScrollableFrameOutput, text=f"OutputData {i}") 
             ScrollTempLabel.grid(row=i, column=0, padx=10, pady=10, sticky="w")
             self.ScrollableOutputList.append(ScrollTempLabel)
-
+        '''
         # set default values
         #self.optionmenu_1.set("CTkOptionmenu")
         #self.combobox_1.set("CTkComboBox")
@@ -160,14 +165,24 @@ class Controller(customtkinter.CTk):
         new_scaling_float = int(new_scaling.replace("%", "")) / 100
         customtkinter.set_widget_scaling(new_scaling_float)
 
-    def sidebar_button_event(self):
-        print("sidebar_button click")
+    def ButtonAddOperationAction(self):
+        self.OperationCurrent = Solver1(self)
+        self.OperationItemList.insert(tk.END, "Solver1")
+        
+        self.OperationHashmap['Skib'] = self.OperationCurrent
+
+    def ButtonDeleteOperationAction(self):
+        pass
+
+    def ButtonGenerateAction(self):
+        self.OperationCurrent.RunSimulation()
 
     def on_return(self, event):
         command = ""
         # get the command and strip the newline character from the end
         command = self.inputTerminal.get()
         self.inputTerminal.delete(0, "end")
+        self.textbox.insert("insert", command)
 
         # check the command and act on it
         self.check_command(command)
@@ -176,7 +191,7 @@ class Controller(customtkinter.CTk):
     def check_command(self, command):
         # check the command and act on it
         print(command)
-        if command == "> help":
+        if command == "help":
             print("SUCC")
             self.textbox.insert("insert", "\n\nAvailable commands:\n\n")
             self.textbox.insert("insert", "help - display this message\n")

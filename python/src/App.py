@@ -1,4 +1,4 @@
-from Controllers.Controller import Controller
+from src.Controllers.Controller import Controller
 
 
 app = Controller()
