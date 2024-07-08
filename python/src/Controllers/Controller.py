@@ -1,6 +1,6 @@
 import tkinter as tk
 import tkinter.messagebox
-import customtkinter
+import customtkinter # type: ignore
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
@@ -17,7 +17,7 @@ class Controller(customtkinter.CTk):
     def run(self):
 
         # configure window
-        self.title("DUPA")
+        self.title("HER")
         self.geometry(f"{1100}x{580}")
 
         # Create a menu bar
@@ -96,42 +96,22 @@ class Controller(customtkinter.CTk):
         canvas.draw()
 
 
-        '''
-        # create tabview
-        self.tabview = customtkinter.CTkTabview(self, width=250)
-        self.tabview.grid(row=1, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
-        self.tabview.add("CTkTabview")
-        self.tabview.add("Tab 2")
-        self.tabview.add("Tab 3")
-        self.tabview.tab("CTkTabview").grid_columnconfigure(0, weight=1)  # configure grid of individual tabs
-        self.tabview.tab("Tab 2").grid_columnconfigure(0, weight=1)
-
-        self.optionmenu_1 = customtkinter.CTkOptionMenu(self.tabview.tab("CTkTabview"), dynamic_resizing=False,
-                                                        values=["Value 1", "Value 2", "Value Long Long Long"])
-        self.optionmenu_1.grid(row=0, column=0, padx=20, pady=(20, 10))
-        self.combobox_1 = customtkinter.CTkComboBox(self.tabview.tab("CTkTabview"),
-                                                    values=["Value 1", "Value 2", "Value Long....."])
-        self.combobox_1.grid(row=1, column=0, padx=20, pady=(10, 10))
-        self.string_input_button = customtkinter.CTkButton(self.tabview.tab("CTkTabview"), text="Open CTkInputDialog",
-                                                           command=self.open_input_dialog_event)
-        self.string_input_button.grid(row=2, column=0, padx=20, pady=(10, 10))
         self.label_tab_2 = customtkinter.CTkLabel(self.tabview.tab("Tab 2"), text="CTkLabel on Tab 2")
         self.label_tab_2.grid(row=0, column=0, padx=20, pady=20)
-        '''
+        
 
         # create textbox
-        self.textbox = tk.Text(self, width=250)
+        self.textbox = customtkinter.CTkTextbox(self, width=250)
         self.textbox.grid(row=2, rowspan=2, column=1, padx=(20, 0), pady=20, sticky="nsew")
+        self.textbox.configure(state="disabled")
 
-        # bind the Return key to the on_return function
-        self.textbox.bind("<Return>", self.on_return)
+        # insert the initial text symbol
+        self.textbox.insert("end", "Welcome to HER terminal, for help insert help")
 
-        # insert the initial "> " symbol
-        self.textbox.insert("end", "> ")
-
-        # make the initial "> " symbol read-only
-        self.textbox.mark_set("insert", "end")
-        self.textbox.bind("<Key>", lambda e: "break")
+        # create input for textbox
+        self.inputTerminal = customtkinter.CTkEntry(self)
+        self.inputTerminal.grid(row=4, rowspan=1, column=1, padx=(20, 0), pady=20, sticky="nsew")
+        self.inputTerminal.bind("<Return>", self.on_return)
 
         # create scrollable frame
         self.scrollable_frame = customtkinter.CTkScrollableFrame(self, label_text="Input Frame", corner_radius=0)
@@ -186,30 +166,11 @@ class Controller(customtkinter.CTk):
     def on_return(self, event):
         command = ""
         # get the command and strip the newline character from the end
-        command = self.textbox.get("insert linestart", "insert lineend").rstrip("\n")
+        command = self.inputTerminal.get()
+        self.inputTerminal.delete(0, "end")
 
         # check the command and act on it
         self.check_command(command)
-
-        # insert the "> " symbol at the end of the textbox
-        self.textbox.insert("end", "\n> ")
-
-        # make the previous commands and the "> " symbol read-only
-        self.textbox.mark_set("insert", "end")
-
-        # remove the "<Key>" binding
-        self.textbox.unbind("<Key>")
-
-        # reapply the "<Key>" binding before the user starts typing
-        self.textbox.after(1, lambda: self.textbox.bind("<Key>", self.on_key))
-
-        # prevent the default Return key action
-        return "break"
-    
-    def on_key(self, event):
-        # if the insertion cursor is in the read-only part of the textbox, ignore the key press
-        if self.textbox.index("insert") < self.textbox.index("end-1c"):
-            return "break"
 
 
     def check_command(self, command):

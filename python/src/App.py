@@ -1,4 +1,4 @@
-from Controllers.CustomTkController import Controller
+from Controllers.Controller import Controller
 
 
 app = Controller()
