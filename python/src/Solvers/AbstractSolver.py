@@ -47,8 +47,13 @@ class AbstractSolver(ABC):
 
     
     def DeleteInput(self):
+        for item, entry in self.InputItemList.items():
+            currentValue = entry.get()
+            self.InputItemList[item] = currentValue
+
         for widget in self.InputItemList:
             widget.destroy()
+        self.InputItemList.clear()
 
     def AddOutput(self, Item, rowNumber):
         Temp = None

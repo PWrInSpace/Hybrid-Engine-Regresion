@@ -67,7 +67,7 @@ class Controller(customtkinter.CTk):
         self.SidebarButtonGenerate = customtkinter.CTkButton(self.sidebar_frame, command=self.ButtonGenerateAction, text="Generate")
         self.SidebarButtonGenerate.grid(row=1, column=0, padx=20, pady=10)
 
-        self.OperationItemList = tk.Listbox(self.sidebar_frame)
+        self.OperationItemList = customtkinter.CTkComboBox(self.sidebar_frame, command=self.OperationSelectAction)
         self.OperationItemList.grid(row=2, column=0, columnspan=2, padx=20, pady=10, sticky="nsew")
 
 
@@ -76,11 +76,6 @@ class Controller(customtkinter.CTk):
         self.SidebarButtonDelete = customtkinter.CTkButton(self.sidebar_frame, command=self.ButtonDeleteOperationAction, text="Delete")
         self.SidebarButtonDelete.grid(row=3, column=1, padx=20, pady=10)
 
-
-
-        # create textbox
-        # self.textbox = customtkinter.CTkTextbox(self, width=250)
-        # self.textbox.grid(row=0, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
 
         # create Graph
         self.graph_frame = customtkinter.CTkFrame(self, width=250)
@@ -98,11 +93,6 @@ class Controller(customtkinter.CTk):
         canvas = FigureCanvasTkAgg(fig, master=self.graph_frame)
         canvas.get_tk_widget().pack(side='top', fill='both', expand=True)
         canvas.draw()
-
-
-        # self.label_tab_2 = customtkinter.CTkLabel(self.tabview.tab("Tab 2"), text="CTkLabel on Tab 2")
-        # self.label_tab_2.grid(row=0, column=0, padx=20, pady=20)
-        
 
         # create textbox
         self.textbox = customtkinter.CTkTextbox(self, width=250)
@@ -122,17 +112,6 @@ class Controller(customtkinter.CTk):
         self.InputFrame.grid(row=1, column=0, rowspan=3, sticky="nsew")
         self.InputFrame.grid_columnconfigure(0, weight=0)
 
-        '''
-        for i in range(100):
-            ScrollTempLabel = customtkinter.CTkLabel(self.InputFrame, text=f"InputData {i}") 
-            ScrollTempLabel.grid(row=i, column=0, padx=10, pady=10, sticky="w")
-            self.SidebarInputItemList.append(ScrollTempLabel)
-
-            ScrollTempEntry = customtkinter.CTkEntry(self.InputFrame)
-            ScrollTempEntry.grid(row=i, column=1, padx=10, pady=10, sticky="w")
-            self.SidebarInputItemList.append(ScrollTempEntry)
-        '''
-
         # create scrollable frame for checkbox graphs
         self.ScrollableFrameGraphChekcbox = customtkinter.CTkScrollableFrame(self, label_text="Graph Checkbox", corner_radius=0, width=250, height=250)
         self.ScrollableFrameGraphChekcbox.grid(row=0, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
@@ -146,17 +125,6 @@ class Controller(customtkinter.CTk):
         self.ScrollableFrameOutput = customtkinter.CTkScrollableFrame(self, label_text="Output Data", corner_radius=0, width=250)
         self.ScrollableFrameOutput.grid(row=1, column=2, rowspan=3, padx=(20, 0), pady=(0, 20), sticky="nsew")
         
-        '''
-        self.ScrollableOutputList = []
-        for i in range(10):
-            ScrollTempLabel = customtkinter.CTkLabel(self.ScrollableFrameOutput, text=f"OutputData {i}") 
-            ScrollTempLabel.grid(row=i, column=0, padx=10, pady=10, sticky="w")
-            self.ScrollableOutputList.append(ScrollTempLabel)
-        '''
-        # set default values
-        #self.optionmenu_1.set("CTkOptionmenu")
-        #self.combobox_1.set("CTkComboBox")
-
     def open_input_dialog_event(self):
         dialog = customtkinter.CTkInputDialog(text="Type in a number:", title="CTkInputDialog")
         print("CTkInputDialog:", dialog.get_input())
@@ -173,14 +141,6 @@ class Controller(customtkinter.CTk):
         operationName = None
 
         self.OperationCreationPopUp(solverType, operationName)
-        
-        SolverClassTemp = self.SolverHashMap[solverType]
-
-        self.OperationItemList.insert(tk.END, operationName)
-
-        self.OperationCurrent = SolverClassTemp(self)
-        
-        self.OperationHashmap[operationName] = self.OperationCurrent
 
     def OperationCreationPopUp(self, solverType, operationName):
         self.popup = tk.Toplevel(self.master)
@@ -189,16 +149,18 @@ class Controller(customtkinter.CTk):
         # Combobox
         self.solverTypeLabel = customtkinter.CTkLabel(self.popup, text="Choose Operation:")
         self.solverTypeLabel.pack()
-        self.solverTypeCombo = customtkinter.CTkComboBox(self.popup)
-        self.solverTypeCombo['values'] = ("Solver1")
+        self.solverTypeCombo = customtkinter.CTkComboBox(self.popup, values=["Solver1"])
+        self.solverTypeCombo.set("Solver1")
         self.solverTypeCombo.pack()
+
 
         self.operationNameLabel = customtkinter.CTkLabel(self.popup, text="Operation name:")
         self.operationNameLabel.pack()
         self.operationNameEntry = customtkinter.CTkEntry(self.popup)
         self.operationNameEntry.pack()
 
-        self.okButton = customtkinter.CTkButton(self.popup, text="OK", command=self.ClosePopup(solverType, operationName))
+        # Use a lambda to defer the execution of ClosePopup
+        self.okButton = customtkinter.CTkButton(self.popup, text="OK", command=lambda: self.ClosePopup(solverType, operationName))
         self.okButton.pack()
 
     def ClosePopup(self, solverType, operationName):
@@ -207,11 +169,37 @@ class Controller(customtkinter.CTk):
 
         self.popup.destroy()
 
+        print(solverType)
+        print(operationName)
+        
+        SolverClassTemp = self.SolverHashMap[solverType]
+
+        self.OperationItemList.insert(tk.END, operationName)
+
+        self.OperationCurrent = SolverClassTemp(self)
+
+        self.OperationHashmap[operationName] = self.OperationCurrent
+        
+
     def ButtonDeleteOperationAction(self):
         pass
 
     def ButtonGenerateAction(self):
         self.OperationCurrent.RunSimulation()
+
+    def OperationSelectAction(self, event):
+        widget = event.widget
+        selection = widget.curselection()
+        index = selection[0]
+        value = widget.get(index)
+        print(f"New selection: {value}")
+        self.OperationCurrent.DeleteInput()
+        self.OperationCurrnet = self.OperationHashmap[value]
+        
+        self.OperationCurrent.CreateInput()
+        self.OperationCurrent.CreateOutput()
+
+
 
     def on_return(self, event):
         command = ""
@@ -228,6 +216,6 @@ class Controller(customtkinter.CTk):
         # check the command and act on it
         print(command)
         if command == "help":
-            print("SUCC")
+            print("help")
             self.textbox.insert("insert", "\n\nAvailable commands:\n\n")
             self.textbox.insert("insert", "help - display this message\n")
