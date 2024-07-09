@@ -3,6 +3,7 @@ import customtkinter # type: ignore
 
 
 class Solver1(AbstractSolver):
+    InputItemList = dict()
 
     def __init__(self, Controller):
         self.Controller = Controller

@@ -67,9 +67,9 @@ class Controller(customtkinter.CTk):
         self.SidebarButtonGenerate = customtkinter.CTkButton(self.sidebar_frame, command=self.ButtonGenerateAction, text="Generate")
         self.SidebarButtonGenerate.grid(row=1, column=0, padx=20, pady=10)
 
-        self.OperationItemList = customtkinter.CTkComboBox(self.sidebar_frame, command=self.OperationSelectAction)
+        self.OperationItemList = customtkinter.CTkComboBox(self.sidebar_frame, values=[], command=self.OperationSelectAction)
         self.OperationItemList.grid(row=2, column=0, columnspan=2, padx=20, pady=10, sticky="nsew")
-
+        self.OperationItemList.set("Set Operation")
 
         self.SidebarButtonAdd = customtkinter.CTkButton(self.sidebar_frame, command=self.ButtonAddOperationAction, text="Add")
         self.SidebarButtonAdd.grid(row=3, column=0, padx=20, pady=10)
@@ -143,8 +143,9 @@ class Controller(customtkinter.CTk):
         self.OperationCreationPopUp(solverType, operationName)
 
     def OperationCreationPopUp(self, solverType, operationName):
-        self.popup = tk.Toplevel(self.master)
+        self.popup = tk.Toplevel(self.master, bg="#303030")
         self.popup.title("Create Operation")
+        self.popup.geometry(f"{180}x{200}")
 
         # Combobox
         self.solverTypeLabel = customtkinter.CTkLabel(self.popup, text="Choose Operation:")
@@ -174,11 +175,18 @@ class Controller(customtkinter.CTk):
         
         SolverClassTemp = self.SolverHashMap[solverType]
 
-        self.OperationItemList.insert(tk.END, operationName)
+        currentVal = self.OperationItemList.cget("values")
+        if operationName not in currentVal:
+            currentVal.append(operationName)
+            self.OperationItemList.configure(values=currentVal)
+
+        if self.OperationCurrent != None:
+            self.OperationCurrent.DeleteInput()
 
         self.OperationCurrent = SolverClassTemp(self)
 
         self.OperationHashmap[operationName] = self.OperationCurrent
+        self.OperationItemList.set(operationName)
         
 
     def ButtonDeleteOperationAction(self):
@@ -188,11 +196,9 @@ class Controller(customtkinter.CTk):
         self.OperationCurrent.RunSimulation()
 
     def OperationSelectAction(self, event):
-        widget = event.widget
-        selection = widget.curselection()
-        index = selection[0]
-        value = widget.get(index)
+        value = self.OperationItemList.get()
         print(f"New selection: {value}")
+
         self.OperationCurrent.DeleteInput()
         self.OperationCurrnet = self.OperationHashmap[value]
         
