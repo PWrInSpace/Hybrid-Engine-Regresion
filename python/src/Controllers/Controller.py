@@ -6,6 +6,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from src.Solvers.AbstractSolver import AbstractSolver
 from src.Solvers.Solver1 import Solver1
 from src.Solvers.InitializeSolvers import InitializeSolvers
+from src.Solvers.InitializeSolvers import GetSolverList
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -80,19 +81,7 @@ class Controller(customtkinter.CTk):
         # create Graph
         self.graph_frame = customtkinter.CTkFrame(self, width=250)
         self.graph_frame.grid(row=0, column=1, rowspan=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
-
-        fig = plt.Figure()
-        ax = fig.add_subplot(111)
-
-        x = [1, 2, 3, 4, 5]
-        y = [10, 20, 55, 30, 20]
-
-        ax.plot(x, y, linestyle='-', color='grey', marker='o')
-        ax.set_title("Force Graph")
-
-        canvas = FigureCanvasTkAgg(fig, master=self.graph_frame)
-        canvas.get_tk_widget().pack(side='top', fill='both', expand=True)
-        canvas.draw()
+    
 
         # create textbox
         self.textbox = customtkinter.CTkTextbox(self, width=250)
@@ -150,8 +139,8 @@ class Controller(customtkinter.CTk):
         # Combobox
         self.solverTypeLabel = customtkinter.CTkLabel(self.popup, text="Choose Operation:")
         self.solverTypeLabel.pack()
-        self.solverTypeCombo = customtkinter.CTkComboBox(self.popup, values=["Solver1"])
-        self.solverTypeCombo.set("Solver1")
+        self.solverTypeCombo = customtkinter.CTkComboBox(self.popup, values=GetSolverList())
+        self.solverTypeCombo.set(GetSolverList()[0])
         self.solverTypeCombo.pack()
 
 
@@ -182,6 +171,7 @@ class Controller(customtkinter.CTk):
 
         if self.OperationCurrent != None:
             self.OperationCurrent.DeleteInput()
+            self.OperationCurrent.DeleteCanvas()
 
         self.OperationCurrent = SolverClassTemp(self)
 
@@ -190,7 +180,8 @@ class Controller(customtkinter.CTk):
         
 
     def ButtonDeleteOperationAction(self):
-        pass
+        self.OperationCurrent.DeleteInput()
+        
 
     def ButtonGenerateAction(self):
         self.OperationCurrent.RunSimulation()
@@ -199,11 +190,13 @@ class Controller(customtkinter.CTk):
         value = self.OperationItemList.get()
         print(f"New selection: {value}")
 
+        self.OperationCurrent.DeleteCanvas()
         self.OperationCurrent.DeleteInput()
-        self.OperationCurrnet = self.OperationHashmap[value]
+        self.OperationCurrent = self.OperationHashmap[value]
         
         self.OperationCurrent.CreateInput()
         self.OperationCurrent.CreateOutput()
+        self.OperationCurrent.CreateCanvas()
 
 
 
