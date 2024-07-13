@@ -102,14 +102,10 @@ class Controller(customtkinter.CTk):
         self.InputFrame.grid_columnconfigure(0, weight=0)
 
         # create scrollable frame for checkbox graphs
-        self.ScrollableFrameGraphChekcbox = customtkinter.CTkScrollableFrame(self, label_text="Graph Checkbox", corner_radius=0, width=250, height=250)
-        self.ScrollableFrameGraphChekcbox.grid(row=0, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
-        self.ScrollableGraphList = []
-        for i in range(10):
-            ScrollTempCheckbox = customtkinter.CTkCheckBox(self.ScrollableFrameGraphChekcbox)
-            ScrollTempCheckbox.grid(row=i, column=0, padx=10, pady=10, sticky="w")
-            self.ScrollableGraphList.append(ScrollTempCheckbox)
-
+        self.ScrollableFrameGraphCheckbox = customtkinter.CTkScrollableFrame(self, label_text="Graph Checkbox", corner_radius=0, width=250, height=250)
+        self.ScrollableFrameGraphCheckbox.grid(row=0, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
+        self.ScrollableFrameGraphCheckbox.grid_columnconfigure(0, weight=0)
+        
         # create scrollable frame for output data
         self.ScrollableFrameOutput = customtkinter.CTkScrollableFrame(self, label_text="Output Data", corner_radius=0, width=250)
         self.ScrollableFrameOutput.grid(row=1, column=2, rowspan=3, padx=(20, 0), pady=(0, 20), sticky="nsew")
@@ -172,6 +168,7 @@ class Controller(customtkinter.CTk):
         if self.OperationCurrent != None:
             self.OperationCurrent.DeleteInput()
             self.OperationCurrent.DeleteCanvas()
+            self.OperationCurrent.DeleteOutput()
 
         self.OperationCurrent = SolverClassTemp(self)
 
@@ -192,12 +189,15 @@ class Controller(customtkinter.CTk):
 
         self.OperationCurrent.DeleteCanvas()
         self.OperationCurrent.DeleteInput()
+        self.OperationCurrent.DeleteOutput()
+        self.OperationCurrent.DeleteCheckboxFrame()
+
         self.OperationCurrent = self.OperationHashmap[value]
         
         self.OperationCurrent.CreateInput()
         self.OperationCurrent.CreateOutput()
         self.OperationCurrent.CreateCanvas()
-
+        self.OperationCurrent.CreateCheckboxFrame()
 
 
     def on_return(self, event):

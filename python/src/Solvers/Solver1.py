@@ -10,6 +10,7 @@ class Solver1(AbstractSolver):
 
         self.CreateInput()
         self.CreateOutput()
+        self.CreateCheckboxFrame()
 
     def CreateInput(self):
         self.AddInputItem("Force", 0)
@@ -24,6 +25,10 @@ class Solver1(AbstractSolver):
     def ShowGraph(self, GraphName):
         pass
 
+    def CreateCheckboxFrame(self):
+        self.AddCheckbox("Check 1", 0)
+        self.AddCheckbox("Skibdib", 1)
+
     def RunSimulation(self):
-        self.AddPlot2D([0, 1], [2, 2], "Plot Solver1")
+        self.AddPlot2D([0, 1], [2, 2], "Plot Solver1", "Example graph", 'orange')
         print("Run() ok")

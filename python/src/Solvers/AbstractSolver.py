@@ -11,6 +11,8 @@ class AbstractSolver(ABC):
     InputValueList = dict()
     OutputItemList = dict()
     OutputValueList = dict()
+    CheckboxItemList = dict()
+    CheckboxValueList = dict()
     GraphItemList = []
     
     Figure = None
@@ -41,6 +43,9 @@ class AbstractSolver(ABC):
     def RunSimulation(self):
         pass
 
+    @abstractmethod
+    def CreateCheckboxFrame(self):
+        pass
     def AddInputItem(self, Item, rowNumber):
         Temp = None
         try:
@@ -80,11 +85,16 @@ class AbstractSolver(ABC):
         ScrollTempLabel.grid(row=rowNumber, column=0, padx=10, pady=10, sticky="w")
 
         self.OutputItemList[Item] = ScrollTempLabel
+    
+    def DeleteOutput(self):
+        for label in self.OutputItemList.values():
+            label.destroy()
 
-    def AddPlot2D(self, x, y, name):
+
+    def AddPlot2D(self, x, y, name, title, color):
         self.ax = self.Figure.add_subplot(111)
-        self.ax.plot(x, y, linestyle='-', marker='o')
-        self.ax.set_title(name)
+        self.ax.plot(x, y, linestyle='-', marker='o', color=color)
+        self.ax.set_title(title)
 
         self.Canvas.draw()
     
@@ -95,3 +105,26 @@ class AbstractSolver(ABC):
 
     def DeleteCanvas(self):
         self.Canvas.get_tk_widget().destroy()
+
+    def AddCheckbox(self, name, rowNumber):
+        ScrollCheckbox = customtkinter.CTkCheckBox(self.Controller.ScrollableFrameGraphCheckbox, text=name)
+        ScrollCheckbox.grid(row=rowNumber, column=0, padx=10, pady=10, sticky="w")
+
+        try:
+            if self.CheckboxValueList[name] == 1:
+                ScrollCheckbox.select()
+            else:
+                ScrollCheckbox.deselect()
+        except KeyError:
+            self.CheckboxValueList[name] = 0
+    
+        self.CheckboxItemList[name] = ScrollCheckbox
+
+    def DeleteCheckboxFrame(self):
+        for item, widget in self.CheckboxItemList.items():
+            self.CheckboxValueList[item] = widget.get()
+            widget.destroy()
+
+        
+
+
