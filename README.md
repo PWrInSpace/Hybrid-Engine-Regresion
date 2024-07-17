@@ -1,2 +1,3 @@
-# Hybrid-Engine-Regresion
-Program to estimate regresion of hybrid rocket engines.
+# Rocket Engine Simulation Platform
+
+GUI platform for rocket engine simulators and comparing data.
