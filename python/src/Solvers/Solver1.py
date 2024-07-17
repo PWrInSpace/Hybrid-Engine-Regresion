@@ -30,5 +30,6 @@ class Solver1(AbstractSolver):
         self.AddCheckbox("Skibdib", 1)
 
     def RunSimulation(self):
-        self.AddPlot2D([0, 1], [2, 2], "Plot Solver1", "Example graph", 'orange')
+        self.AddPlot2D([0, 1], [2, 2], "Check 1", "Example graph", 'orange')
+        self.AddPlot2D([0, 2], [3, 3], "Skibdib", "Example graph", 'green')
         print("Run() ok")

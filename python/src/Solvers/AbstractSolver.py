@@ -13,7 +13,8 @@ class AbstractSolver(ABC):
     OutputValueList = dict()
     CheckboxItemList = dict()
     CheckboxValueList = dict()
-    GraphItemList = []
+    
+    PlotList = dict()  # WORKING ON THE PLOT DELETE PLOT ADD ETC
     
     Figure = None
     Canvas = None
@@ -95,8 +96,25 @@ class AbstractSolver(ABC):
         self.ax = self.Figure.add_subplot(111)
         self.ax.plot(x, y, linestyle='-', marker='o', color=color)
         self.ax.set_title(title)
+        self.PlotList[name] = self.ax
 
         self.Canvas.draw()
+
+    def UnshowPlot(self, name):
+        self.Figure.delaxes(self.PlotList[name])
+
+    def ShowPlot(self, name):
+        print(f"ShowPlot name:{name}")
+
+    def PlotAction(self, name):
+        print(f"PlotAction name: {name}")
+        print(f"Status of checkbox: {self.CheckboxItemList[name].get()}")
+        
+        if self.CheckboxItemList[name].get() == 1:
+            self.ShowPlot(name)
+        else:
+            self.UnshowPlot(name)
+        
     
     def CreateCanvas(self): 
         self.Canvas = FigureCanvasTkAgg(self.Figure, master=self.Controller.graph_frame)
@@ -107,7 +125,7 @@ class AbstractSolver(ABC):
         self.Canvas.get_tk_widget().destroy()
 
     def AddCheckbox(self, name, rowNumber):
-        ScrollCheckbox = customtkinter.CTkCheckBox(self.Controller.ScrollableFrameGraphCheckbox, text=name)
+        ScrollCheckbox = customtkinter.CTkCheckBox(self.Controller.ScrollableFrameGraphCheckbox, text=name, command = lambda: self.PlotAction(name))
         ScrollCheckbox.grid(row=rowNumber, column=0, padx=10, pady=10, sticky="w")
 
         try:
