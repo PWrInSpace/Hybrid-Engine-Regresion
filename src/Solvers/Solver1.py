@@ -26,10 +26,15 @@ class Solver1(AbstractSolver):
         pass
 
     def CreateCheckboxFrame(self):
-        self.AddCheckbox("Check 1", 0)
-        self.AddCheckbox("Skibdib", 1)
+        self.AddCheckbox("Force", 0)
 
     def RunSimulation(self):
-        self.AddPlot2D([0, 1], [2, 2], "Check 1", "Example graph", 'orange')
-        self.AddPlot2D([0, 2], [3, 3], "Skibdib", "Example graph", 'green')
+        time = [0, 1, 2]
+        
+        force = int(self.InputItemList["Force"].get())
+        forceGraph = [force, 0.7 * force, 0.1*force]
+        
+        self.SimulationData["Force"] = self.SimulationDataFrame(time, forceGraph)
+        
+
         print("Run() ok")

@@ -23,6 +23,10 @@ class AbstractSolver(ABC):
         x = None
         y = None
 
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+
     SimulationData = dict()
     
     def __init__(self, Controller):
@@ -100,25 +104,25 @@ class AbstractSolver(ABC):
 
     def ShowHelper(self, x, y, name):
         plot, = self.ax.plot(x, y, linestyle='-', marker='o')
-        PlotList[name] = plot
+        self.PlotList[name] = plot
 
         self.ax.legend()
         self.Canvas.draw()
 
     def UnshowPlot(self, name):
         try:
-            PlotList[name].remove()
+            self.PlotList[name].remove()
             self.ax.legend()
             self.Canvas.draw()
-        except Error:
+        except KeyError:
             pass
 
     def ShowPlot(self, name):
         print(f"ShowPlot name:{name}")
 
         try:
-            self.ShowHelper(SimulationData[name].x, SimulationData[name].y, name)
-        except Error:
+            self.ShowHelper(self.SimulationData[name].x, self.SimulationData[name].y, name)
+        except KeyError:
             self.ShowHelper([0, 1, 2], [0, 0, 0], name)
 
     def PlotAction(self, name):
@@ -164,6 +168,12 @@ class AbstractSolver(ABC):
         for item, widget in self.CheckboxItemList.items():
             self.CheckboxValueList[item] = widget.get()
             widget.destroy()
+
+    def DeletePlots(self):
+        for plot in self.PlotList.values():
+            plot.remove()
+
+        self.Canvas.draw()
 
         
 

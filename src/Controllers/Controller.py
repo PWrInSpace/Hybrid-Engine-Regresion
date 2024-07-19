@@ -187,6 +187,7 @@ class Controller(customtkinter.CTk):
         value = self.OperationItemList.get()
         print(f"New selection: {value}")
 
+        self.OperationCurrent.DeletePlots()
         self.OperationCurrent.DeleteCanvas()
         self.OperationCurrent.DeleteInput()
         self.OperationCurrent.DeleteOutput()
