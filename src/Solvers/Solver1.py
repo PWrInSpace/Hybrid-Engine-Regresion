@@ -8,13 +8,9 @@ class Solver1(AbstractSolver):
     def __init__(self, Controller):
         super().__init__(Controller)
 
-        self.CreateInput()
-        self.CreateOutput()
-        self.CreateCheckboxFrame()
-
     def CreateInput(self):
         self.AddInputItem("Force", 0)
-        print("Solver1.CreateInput")
+        print("CreateInput(): " + str(self.InputValueList["Force"]))
     
     def CreateOutput(self):
         self.AddOutput("Impulse", 0)

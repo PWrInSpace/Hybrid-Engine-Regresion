@@ -18,6 +18,7 @@ class AbstractSolver(ABC):
     
     Figure = None
     Canvas = None
+    ax = None
 
     class SimulationDataFrame():
         x = None
@@ -32,8 +33,38 @@ class AbstractSolver(ABC):
     def __init__(self, Controller):
         self.Controller = Controller
         self.Figure = plt.Figure()
-        self.CreateCanvas()
 
+        self.InputItemList = dict()
+        self.InputLabelList = dict()
+        self.InputValueList = dict()
+        
+        self.OutputItemList = dict()
+        self.OutputValueList = dict()
+        
+        self.CheckboxItemList = dict()
+        self.CheckboxValueList = dict()
+        
+        self.PlotList = dict()  # WORKING ON THE PLOT DELETE PLOT ADD ETC
+        
+        self.Canvas = None
+        self.ax = None
+
+        self.Start()
+    
+
+    def Start(self):
+        self.CreateCanvas()
+        self.CreateInput()
+        self.CreateOutput()
+        self.CreateCheckboxFrame()
+
+    def Stop(self):
+        self.DeletePlots()
+        self.DeleteCanvas()
+        self.DeleteInput()
+        self.DeleteOutput()
+        self.DeleteCheckboxFrame()
+    
     @abstractmethod
     def CreateInput(self):
         pass
@@ -84,7 +115,9 @@ class AbstractSolver(ABC):
         
         for item, label in self.InputLabelList.items():
             label.destroy()
-
+        
+        print("DeleteInput()")
+        
     def AddOutput(self, Item, rowNumber):
         Temp = None
         try:
@@ -106,13 +139,13 @@ class AbstractSolver(ABC):
         plot, = self.ax.plot(x, y, linestyle='-', marker='o')
         self.PlotList[name] = plot
 
-        self.ax.legend()
         self.Canvas.draw()
 
     def UnshowPlot(self, name):
         try:
             self.PlotList[name].remove()
-            self.ax.legend()
+            self.PlotList[name] = None
+
             self.Canvas.draw()
         except KeyError:
             pass
@@ -135,7 +168,7 @@ class AbstractSolver(ABC):
             self.UnshowPlot(name)
         
     
-    def CreateCanvas(self): 
+    def CreateCanvas(self):
         self.Canvas = FigureCanvasTkAgg(self.Figure, master=self.Controller.graph_frame)
         self.Canvas.get_tk_widget().pack(side='top', fill='both', expand=True)
         
@@ -170,11 +203,19 @@ class AbstractSolver(ABC):
             widget.destroy()
 
     def DeletePlots(self):
-        for plot in self.PlotList.values():
-            plot.remove()
-
+        
+        for item, plot in self.PlotList.items():
+            try:
+                if self.PlotList[item] != None:
+                    self.PlotList[item].remove()
+                    self.PlotList[item] = None
+            except KeyErorr:
+                pass
+        
+        self.PlotList.clear()
+        self.ax.clear()
         self.Canvas.draw()
-
+        
         
 
 

@@ -155,22 +155,19 @@ class Controller(customtkinter.CTk):
 
         self.popup.destroy()
 
-        print(solverType)
-        print(operationName)
+        print(solverType + ":" + operationName)
         
-        SolverClassTemp = self.SolverHashMap[solverType]
 
         currentVal = self.OperationItemList.cget("values")
+        
         if operationName not in currentVal:
             currentVal.append(operationName)
             self.OperationItemList.configure(values=currentVal)
 
-        if self.OperationCurrent != None:
-            self.OperationCurrent.DeleteInput()
-            self.OperationCurrent.DeleteCanvas()
-            self.OperationCurrent.DeleteOutput()
+        if self.OperationCurrent is not None:
+            self.OperationCurrent.Stop()
 
-        self.OperationCurrent = SolverClassTemp(self)
+        self.OperationCurrent = self.SolverHashMap[solverType](self)
 
         self.OperationHashmap[operationName] = self.OperationCurrent
         self.OperationItemList.set(operationName)
@@ -186,20 +183,10 @@ class Controller(customtkinter.CTk):
     def OperationSelectAction(self, event):
         value = self.OperationItemList.get()
         print(f"New selection: {value}")
-
-        self.OperationCurrent.DeletePlots()
-        self.OperationCurrent.DeleteCanvas()
-        self.OperationCurrent.DeleteInput()
-        self.OperationCurrent.DeleteOutput()
-        self.OperationCurrent.DeleteCheckboxFrame()
-
-        self.OperationCurrent = self.OperationHashmap[value]
         
-        self.OperationCurrent.CreateInput()
-        self.OperationCurrent.CreateOutput()
-        self.OperationCurrent.CreateCanvas()
-        self.OperationCurrent.CreateCheckboxFrame()
-
+        self.OperationCurrent.Stop()
+        self.OperationCurrent = self.OperationHashmap[value]
+        self.OperationCurrent.Start()
 
     def on_return(self, event):
         command = ""
